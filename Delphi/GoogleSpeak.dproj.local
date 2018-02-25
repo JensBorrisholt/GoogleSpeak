@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.592,C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Google Speak\CRC32U.pas=C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Google Speak\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.375,C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Google Speak\GoogleSpeak.dproj=C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Project24.dproj</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.320,C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Google Speak\MainU.pas=C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Unit28.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.320,C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Google Speak\MainU.dfm=C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Unit28.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.851,=C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Google Speak\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.192,=C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Unit28.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.318,C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Google Speak\GoogleSpeakU.pas=C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Google Speak\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.239,=C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Google Speak\Unit1.pas</Transaction>
+    <Transaction>2018-02-25 07:44:41.655,=C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Google Speak\Delphi\Unit1.pas</Transaction>
+    <Transaction>2018-02-25 07:44:58.969,C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Google Speak\Delphi\LanguagesU.pas=C:\Users\Jens Borrisholt\Documents\Embarcadero\Studio\Projects\Google Speak\Delphi\Unit1.pas</Transaction>
+  </Transactions>
+</BorlandProject>
