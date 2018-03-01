@@ -11,66 +11,82 @@ namespace GoogleSpeak.GoogleSpeak
 {
     public class GoogleSpeech
     {
-        private readonly Queue<string> playlist = new Queue<string>();
-        private IWavePlayer player;
-        private Mp3FileReader mp3FileReader;
-        private string downloadFolder;
+        private readonly Queue<string> _playlist = new Queue<string>();
+        private IWavePlayer _player;
+        private Mp3FileReader _mp3FileReader;
+        private string _downloadFolder;
         private static readonly Lazy<GoogleSpeech> Lazy = new Lazy<GoogleSpeech>(() => new GoogleSpeech());
-        private bool playing;
-
-        public event EventHandler<StoppedEventArgs> PlaybackStopped;
-        public Language Language { get; set; } = Languages.FromCode("da");
-
+        private bool _playing;
         private void Play()
         {
-            if (playlist.Count < 1)
+            if (_playlist.Count < 1)
                 return;
-            playing = true;
+            _playing = true;
 
-            player = new WaveOutEvent();
-            player.PlaybackStopped += (sender, e) =>
+            _player = new WaveOutEvent();
+            _player.PlaybackStopped += (sender, e) =>
             {
-                player?.Dispose();
-                mp3FileReader?.Dispose();
-                if (playlist.Any())
+                _player?.Dispose();
+                _mp3FileReader?.Dispose();
+                if (_playlist.Any())
                     Play();
                 else
                     OnPlaybackStopped(e);
-            };
+            }; 
 
-            mp3FileReader = new Mp3FileReader(playlist.Dequeue());
-            player.Init(mp3FileReader);
-            player.Play();
+            _mp3FileReader = new Mp3FileReader(_playlist.Dequeue());
+            _player.Init(_mp3FileReader);
+            _player.Play();
         }
 
         protected virtual void OnPlaybackStopped(StoppedEventArgs e)
         {
-            playing = false;
-            PlaybackStopped?.Invoke(this, e);
+            _playing = false;
+            if (e.Exception != null)
+                PlaybackStopped?.Invoke(this, e);
         }
 
-
-        public void Say(string text, string languageCode)
+        public Task<string> DownloadFile(string text, Language language)
         {
-            var language = Languages.FromCode(languageCode);
-            Say(text, language);
+            string Action(object obj)
+            {
+                var element = (string)obj;
+                var filename = DownloadFolder + CRC32.Hash(language.Code + " " + text) + ".mp3";
+                var url = $"https://translate.googleapis.com/translate_tts?ie=UTF-8&q={HttpUtility.UrlEncode(element)}&tl={language.Code}&total=1&idx=0&textlen={text.Length}&client=gtx";
+
+                if (!File.Exists(filename))
+                    using (var webClient = new WebClient())
+                        webClient.DownloadFile(url, filename);
+
+                return filename;
+            }
+
+            return Task<string>.Factory.StartNew(Action, text);
         }
 
+        protected List<Task<string>> DownloadFiles(Language language, params string[] text) => text?.Select(element => DownloadFile(element, language)).ToList();
+
+        public event EventHandler<StoppedEventArgs> PlaybackStopped;
+        public Language Language { get; set; } = Languages.FromCode("da");
+        public string DownloadFolder
+        {
+            get => _downloadFolder;
+            set
+            {
+                _downloadFolder = value;
+                Directory.CreateDirectory(_downloadFolder);
+            }
+        }
+
+        public void Say(string text, string languageCode) => Say(text, Languages.FromCode(languageCode));
         public void Say(string text, Language language = null)
         {
             if (language == null)
                 language = Language;
 
-            var filename = DownloadFolder + CRC32.Hash(language.Code + " " + text) + ".mp3";
-            var url = $"https://translate.googleapis.com/translate_tts?ie=UTF-8&q={HttpUtility.UrlEncode(text)}&tl={language.Code}&total=1&idx=0&textlen={text.Length}&client=gtx";
+            _playlist.Enqueue(DownloadFile(text, language).Result);
 
-            if (!UseCache || !File.Exists(filename))
-                using (var webClient = new WebClient())
-                    webClient.DownloadFile(url, filename);
-
-            playlist.Enqueue(filename);
-
-            if (!playing)
+            if (!_playing)
                 Play();
         }
 
@@ -84,16 +100,6 @@ namespace GoogleSpeak.GoogleSpeak
         {
             if (!UseCache)
                 Directory.Delete(DownloadFolder);
-        }
-
-        public string DownloadFolder
-        {
-            get => downloadFolder;
-            set
-            {
-                downloadFolder = value;
-                Directory.CreateDirectory(downloadFolder);
-            }
         }
 
         public static GoogleSpeech Instance => Lazy.Value;

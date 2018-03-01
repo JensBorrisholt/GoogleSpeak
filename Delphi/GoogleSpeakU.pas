@@ -3,7 +3,7 @@ unit GoogleSpeakU;
 interface
 
 uses
-  System.Classes, System.SysUtils, VCL.Forms, VCL.MPlayer, VCL.Controls, LanguagesU;
+  System.Classes, System.SysUtils, System.Threading,  VCL.Forms, VCL.MPlayer, VCL.Controls, LanguagesU;
 {$M+}
 
 type
@@ -16,12 +16,15 @@ type
     FLanguage: TLanguage;
     procedure SayNext;
     procedure MediaPlayerNotify(Sender: TObject);
-    function DownloadFile(aText: String; aLanguage: TLanguage): string;
   published
     property Language: TLanguage read FLanguage write FLanguage;
   public
     constructor Create(AOwner: TWinControl; AUseCache: Boolean = True; aLanguageCode: string = 'da'); reintroduce;
     destructor Destroy; override;
+
+    function DownloadFile(aText: String; aLanguage: string): IFuture<string>; overload;
+    function DownloadFile(aText: String; aLanguage: TLanguage = nil): IFuture<string>; overload;
+
     procedure Say(aText: String; aLanguage: TLanguage = nil); overload;
     procedure Say(aText: String; aLanguageCode: string); overload;
   end;
@@ -58,17 +61,30 @@ begin
   inherited;
 end;
 
-function TGoogleSpeak.DownloadFile(aText: String; aLanguage: TLanguage): string;
+function TGoogleSpeak.DownloadFile(aText: String; aLanguage: string): IFuture<string>;
 var
   Url: String;
 begin
-  Url := 'https://translate.googleapis.com/translate_tts?ie=UTF-8&q=' + TIdURI.PathEncode(aText) + '&tl=' + aLanguage.Code + '&total=1&idx=0&textlen=' + aText.Length.ToString + '&client=gtx';
-  Result := FDownloadFolder + TCrc32.Hash(aText).ToString + '.mp3';
+  if aLanguage = '' then
+    aLanguage := FLanguage.Code;
 
-  if (FUseCache and TFile.Exists(Result)) then
-    exit;
+  Url := 'https://translate.googleapis.com/translate_tts?ie=UTF-8&q=' + TIdURI.PathEncode(aText) + '&tl=' + aLanguage + '&total=1&idx=0&textlen=' + aText.Length.ToString + '&client=gtx';
+  Result := TTask.Future<string>(  function : string
+  begin
+    Result := FDownloadFolder +  TCrc32.Hash(aLanguage + ' ' + aText).ToString + '.mp3';
+    if (FUseCache and TFile.Exists(Result)) then
+      exit;
 
-  URLDownloadToFile(nil, pchar(Url), pchar(Result), 0, nil);
+    URLDownloadToFile(nil, pchar(Url), pchar(Result), 0, nil);
+  end
+  ).Start;
+end;
+
+function TGoogleSpeak.DownloadFile(aText: String; aLanguage: TLanguage): IFuture<string>;
+begin
+  if aLanguage = nil then
+    aLanguage = FLanguage;
+  Result := DownloadFile(aText,aLanguage.Code);
 end;
 
 procedure TGoogleSpeak.MediaPlayerNotify(Sender: TObject);
@@ -99,7 +115,7 @@ begin
   if FBuffer.Count = 0 then
     exit;
 
-  FMediaPlayer.FileName := DownloadFile(FBuffer[0], TLanguage(FBuffer.Objects[0]));
+  FMediaPlayer.FileName := DownloadFile(FBuffer[0], TLanguage(FBuffer.Objects[0])).Value;
   FBuffer.Delete(0);
   FMediaPlayer.Open;
   FMediaPlayer.Play;
