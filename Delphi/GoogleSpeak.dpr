@@ -4,8 +4,8 @@ uses
   Vcl.Forms,
   MainU in 'MainU.pas' {FormMain},
   GoogleSpeakU in 'GoogleSpeakU.pas',
-  CRC32U in 'CRC32U.pas',
-  LanguagesU in 'LanguagesU.pas';
+  LanguagesU in 'LanguagesU.pas',
+  EventDispatcher in 'EventDispatcher.pas';
 
 {$R *.res}
 

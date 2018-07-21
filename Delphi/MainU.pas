@@ -3,8 +3,7 @@ unit MainU;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, GoogleSpeakU;
+  Vcl.Forms, GoogleSpeakU;
 
 type
   TFormMain = class(TForm)
@@ -26,9 +25,10 @@ procedure TFormMain.FormCreate(Sender: TObject);
 begin
   with TGoogleSpeak.Create(Self) do
   begin
-    Say('Her er en hest');
-    Say('og en hest mere');
-    Say('and yet another one', 'en');
+    Say('Her er 1 hest');
+    Say('Her er 2 heste');
+    Say('3 køer er der her');
+    Say('og 4 æsler her');
   end;
 end;
 
